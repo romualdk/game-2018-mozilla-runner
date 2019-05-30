@@ -3,7 +3,7 @@ Mozilla runner
 
 Mozilla like runner for js13k 2018.
 
-https://romualdk.github.io/games/2018/mozilla-runner
+https://romualdk.github.io/games/2018/mozilla-runner/
 
 ![preview](img/mozgame-prev.png)
 
