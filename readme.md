@@ -5,6 +5,8 @@ Mozilla like runner for js13k 2018.
 
 https://romualdk.github.io/games/2018/mozilla-runner/
 
+(press Z to jump, X to shoot)
+
 ![preview](img/mozgame-prev.png)
 
 UNFINISHED
