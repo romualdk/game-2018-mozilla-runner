@@ -15,7 +15,7 @@ It's more like mockup but I wish I could make it to the end ;-).
 INFO
 ----
 
-Tileset and sound are base64 encoded and hard coded in "dev.js".
+Tileset and sound are base64 encoded and hard coded in "game.js".
 
 Tileset is grayscale and colored on demand.
 
