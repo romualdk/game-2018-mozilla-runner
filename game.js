@@ -184,7 +184,7 @@ function getTilePos (tile) {
  */
 
 var ground = document.getElementById('ground')
-groundCtx = ground.getContext('2d')
+var groundCtx = ground.getContext('2d')
 
 function initGround () {
   ground.width = Math.ceil(gamescreen.width / 80) * 80
@@ -211,7 +211,7 @@ function initGround () {
 }
 
 var sky = document.getElementById('sky')
-skyCtx = sky.getContext('2d')
+var skyCtx = sky.getContext('2d')
 
 function initSky () {
   sky.width = ground.width
