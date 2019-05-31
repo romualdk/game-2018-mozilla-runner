@@ -1,0 +1,27 @@
+{
+  "name": "mozilla-runner",
+  "version": "0.4.0",
+  "description": "Mozilla like runner for js13k 2018.",
+  "main": "game.js",
+  "scripts": {
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/romualdk/game-2018-mozilla-runner.git"
+  },
+  "keywords": [
+    "game",
+    "runner",
+    "mozilla"
+  ],
+  "author": "Romuald Kowalczyk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/romualdk/game-2018-mozilla-runner/issues"
+  },
+  "homepage": "https://github.com/romualdk/game-2018-mozilla-runner#readme",
+  "devDependencies": {
+    "standard": "^12.0.1"
+  }
+}
