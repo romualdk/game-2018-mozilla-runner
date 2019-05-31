@@ -7,7 +7,6 @@ import { getTilesetCanvas, colorizeTileset, getTilePos } from './src/tileset.js'
 let currentColorScheme = 'grayscale'
 
 const tileset = getTilesetCanvas()
-//const tilesetCtx = tileset.getContext('2d')
 
 /**
  * SCREEN
