@@ -1,3 +1,4 @@
+import Loop from './src/Main/Loop.js'
 
 /**
  * AUDIO
@@ -237,41 +238,6 @@ function initSky () {
 
     skyCtx.drawImage(tileset, pos[0], pos[1], 80, 32, dx, dy, 80, 32)
   }
-}
-
-/**
- * GAME LOOP
- */
-var now
-
-var dt = 0
-
-var last = timestamp()
-
-var slow = 1
-
-var step = 1 / 60
-
-var slowStep = slow * step
-
-function timestamp () {
-  return window.performance && window.performance.now ? window.performance.now() : new Date().getTime()
-}
-
-function frame () {
-  now = timestamp()
-  dt = dt + Math.min(1, (now - last) / 1000)
-
-  while (dt > slowStep) {
-    dt = dt - slowStep
-    update(step)
-  }
-
-  render(dt / slow)
-
-  last = now
-
-  requestAnimationFrame(frame)
 }
 
 /**
@@ -619,11 +585,20 @@ var speedWait = 10
 var points = 0
 var highScore = 0
 
+const state = {}
+state.prepare = function () {} // NOOP
+state.update = update
+state.render = render
+
+const gameLoop = new Loop(state)
+
 chrtable.onload = function () {
   resetGameColors()
   resetGame()
   isDead = true
-  requestAnimationFrame(frame)
+  // requestAnimationFrame(frame)
+
+  gameLoop.start()
 }
 
 function resetGameColors () {
@@ -721,7 +696,7 @@ function update (dt) {
   }
 }
 
-function render (dt) {
+function render () {
   gamectx.clearRect(0, 0, gamescreen.width, gamescreen.height)
 
   // Ground
