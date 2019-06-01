@@ -182,7 +182,7 @@ function checkControls () {
 function update (dt) {
   checkControls()
 
-  for (var i in bullets) {
+  for (let i in bullets) {
     bullets[i].update(dt)
   }
 
@@ -209,7 +209,7 @@ function update (dt) {
     obstacleTimer = 0
   }
 
-  for (var i in obstacles) {
+  for (let i in obstacles) {
     obstacles[i].update(dt)
   }
 
@@ -227,7 +227,7 @@ function update (dt) {
 
   // Collision detection
   var collision = false
-  var i = 0
+  let i = 0
   while (!collision && i < obstacles.length) {
     // broead phase
     if (obstacles[i].x < 64) {
@@ -267,7 +267,7 @@ function render () {
   gamescreen.ctx.drawImage(sky, 0, 0, sky.width, sky.height, Math.floor(skyPos - sky.width), 0, sky.width, sky.height)
 
   // Obstacles
-  for (var i in obstacles) {
+  for (let i in obstacles) {
     gamescreen.ctx.drawImage(tileset, obstacles[i].sx, obstacles[i].sy, obstacles[i].width, obstacles[i].height, Math.floor(obstacles[i].x), Math.floor(obstacles[i].y), obstacles[i].width, obstacles[i].height)
   }
 
@@ -276,7 +276,7 @@ function render () {
   gamescreen.ctx.drawImage(tileset, tile[0], tile[1], player.width, player.height, Math.floor(player.x), Math.floor(player.y), player.width, player.height)
 
   // Bullets
-  for (var i in bullets) {
+  for (let i in bullets) {
     gamescreen.ctx.drawImage(tileset, bullets[i].sx, bullets[i].sy, bullets[i].width, bullets[i].height, Math.floor(bullets[i].x), Math.floor(bullets[i].y), bullets[i].width, bullets[i].height)
   }
 
