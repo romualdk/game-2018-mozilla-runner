@@ -1,16 +1,11 @@
 let scale = 1
 
-export function getGamescreen (width, height, smoothing = 0) {
+export function getGamescreen (width, height) {
   let gamescreen = document.createElement('canvas')
   gamescreen.width = width
   getGamescreen.height = height
   gamescreen.ctx = gamescreen.getContext('2d')
-
-  gamescreen.ctx.mozImageSmoothingEnabled = smoothing
-  gamescreen.ctx.msImageSmoothingEnabled = smoothing
-  gamescreen.ctx.webkitImageSmoothingEnabled = smoothing
-  gamescreen.ctx.imageSmoothingEnabled = smoothing
-
+  
   return gamescreen
 }
 
