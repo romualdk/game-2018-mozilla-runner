@@ -11,6 +11,31 @@ const COLORMAP_REGION_WIDTH = 32
 const COLORMAP_REGION_HEIGHT = 32
 const BYTES_PER_PIXEL = 4
 
+export const spritesheet = {
+  player: {
+    width: 32,
+    height: 32,
+    /* tiles: [
+            0, // stand
+            2, // walk 1
+            4, // walk 2
+            6, // dodge,
+            8, // jump
+            10, // look up
+            12, // look back
+            14 // hurt
+        ], */
+    animations: {
+      stand: [0],
+      walk: [0, 2, 0, 4],
+      jump: [16],
+      hurt: [22]
+    },
+    animationSpeed: 8,
+    currentAnimation: 'stand'
+  }
+}
+
 export function getTilesetCanvas () {
   let tileset = document.createElement('canvas')
   tileset.width = TILE_WIDTH * TILES_HORIZONTAL

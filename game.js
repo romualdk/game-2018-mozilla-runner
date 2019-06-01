@@ -1,270 +1,82 @@
-import Loop from './src/Main/Loop.js'
+import Mainloop from './src/Mainloop.js'
+import { getGamescreen, getCanvas, resizeCanvas } from './src/screen.js'
 import { renderHud, renderGameOver } from './src/hud.js'
 import { sound } from './src/sound.js'
 import { colorScheme } from './src/colorScheme.js'
-import { getTilesetCanvas, colorizeTileset, getTilePos } from './src/tileset.js'
+import { spritesheet, getTilesetCanvas, colorizeTileset, getTilePos } from './src/tileset.js'
+import { getGround, getSky } from './src/layers.js'
+import Player from './src/Player.js'
+import Bullet from './src/Bullet.js'
+import Obstacle from './src/Obstacle.js'
+import { initControls, buttonState, resetButtons } from './src/controls.js'
 
 let currentColorScheme = 'grayscale'
-
 const tileset = getTilesetCanvas()
 
 /**
  * SCREEN
  */
+const SCREEN_WIDTH = 420
+const SCREEN_HEIGHT = 180
 
-var gamescreen = document.createElement('canvas')
-var gamectx = gamescreen.getContext('2d')
-gamescreen.width = 420
-gamescreen.height = 180
+let gamescreen = getGamescreen(SCREEN_WIDTH, SCREEN_HEIGHT)
+let canvas = getCanvas('screen', gamescreen)
 
-var scale = 1
-
-var canvas = document.getElementById('screen')
-var ctx = canvas.getContext('2d')
-canvas.width = gamescreen.width * scale
-canvas.height = gamescreen.height * scale
-
-var smoothing = 0
-
-gamectx.mozImageSmoothingEnabled = smoothing
-gamectx.msImageSmoothingEnabled = smoothing
-gamectx.webkitImageSmoothingEnabled = smoothing
-gamectx.imageSmoothingEnabled = smoothing
-
-window.addEventListener('resize', resizeCanvas, false)
-
-resizeCanvas()
-
-function resizeCanvas () {
-  scale = Math.floor(window.innerWidth / gamescreen.width)
-  scale = scale < 1 ? 1 : (scale > 2 ? 2 : scale)
-
-  canvas.width = gamescreen.width * scale
-  canvas.height = gamescreen.height * scale
-
-  document.getElementById('info').style.width = canvas.width + 'px'
+function onResize () {
+  resizeCanvas(gamescreen, canvas, 'info')
 }
+
+window.addEventListener('resize', onResize, false)
+onResize()
 
 /**
  * Layers
  */
+let ground = getGround(gamescreen, tileset, colorScheme, currentColorScheme, getTilePos)
+let sky = getSky(gamescreen, tileset, colorScheme, currentColorScheme, getTilePos, ground)
 
-var ground = document.getElementById('ground')
-var groundCtx = ground.getContext('2d')
+var gravity = 9.8
+var groundPos = 0
+var groundSpeed = -350
+let spriteGroundY = gamescreen.height - ground.height + 4
 
-function initGround () {
-  ground.width = Math.ceil(gamescreen.width / 80) * 80
-  ground.height = Math.floor(gamescreen.height / 4)
+var skyPos = 0
+var skySpeed = Math.floor(groundSpeed / 10)
 
-  var scheme = colorScheme[currentColorScheme]
-  var color = scheme.colors[scheme.groundColor]
+var started = false
+var speedTimer = 0
+var speedWait = 10
 
-  groundCtx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')'
-  groundCtx.fillRect(0, 0, ground.width, ground.height)
-
-  var stamps = Math.floor(5 + Math.random() * 3)
-  var pos = getTilePos(70)
-
-  var step = Math.floor(ground.width / stamps)
-  var devStep = Math.floor(step / 3)
-  var devVert = Math.floor(ground.height / 8)
-
-  for (var i = 0; i < stamps; i++) {
-    var dx = 16 + i * step + devStep - Math.floor(Math.random() * devStep * 2)
-    var dy = Math.floor(ground.height / 3) + devVert - Math.floor(Math.random() * devVert * 2)
-    groundCtx.drawImage(tileset, pos[0], pos[1], 32, 32, dx, dy, 32, 32)
-  }
-}
-
-var sky = document.getElementById('sky')
-var skyCtx = sky.getContext('2d')
-
-function initSky () {
-  sky.width = ground.width
-  sky.height = gamescreen.height - ground.height
-  var thirdHeight = Math.floor(sky.height / 3)
-
-  var scheme = colorScheme[currentColorScheme]
-  var color = scheme.colors[scheme.skyColor]
-
-  skyCtx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')'
-  skyCtx.fillRect(0, 0, sky.width, sky.height - thirdHeight)
-
-  var color = scheme.colors[scheme.cloudColor]
-
-  skyCtx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')'
-  skyCtx.fillRect(0, sky.height - thirdHeight, sky.width, thirdHeight)
-
-  var pos = getTilePos(64)
-
-  for (var i = 0; i < sky.width / 80; i++) {
-    var dx = i * 80
-    var dy = sky.height - thirdHeight - 32
-
-    skyCtx.drawImage(tileset, pos[0], pos[1], 80, 32, dx, dy, 80, 32)
-  }
-}
-
-/**
- * MISC
- */
-function isMobile () {
-  if (navigator.userAgent.match(/Android/i) ||
-    navigator.userAgent.match(/webOS/i) ||
-    navigator.userAgent.match(/iPhone/i) ||
-    navigator.userAgent.match(/iPad/i) ||
-    navigator.userAgent.match(/iPod/i) ||
-    navigator.userAgent.match(/BlackBerry/i) ||
-    navigator.userAgent.match(/Windows Phone/i)
-  ) {
-    return true
-  } else {
-    return false
-  }
-}
-
-var spritesheet = {
-  player: {
-    width: 32,
-    height: 32,
-    /* tiles: [
-            0, // stand
-            2, // walk 1
-            4, // walk 2
-            6, // dodge,
-            8, // jump
-            10, // look up
-            12, // look back
-            14 // hurt
-        ], */
-    animations: {
-      stand: [0],
-      walk: [0, 2, 0, 4],
-      jump: [16],
-      hurt: [22]
-    },
-    animationSpeed: 8,
-    currentAnimation: 'stand'
-  }
-}
-
-/**
- * SPRITE
- */
-function Sprite (sprite) {
-  this.x = 0
-  this.y = 0
-  this.vx = 0
-  this.vy = 0
-  this.ax = 0
-  this.ay = 0
-  this.jumping = false
-  this.width = spritesheet[sprite].width
-  this.height = spritesheet[sprite].height
-  this.animations = {}
-  this.animationSpeed = spritesheet[sprite].animationSpeed
-  this.currentAnimation = spritesheet[sprite].currentAnimation
-  this.currentAnimationTile = 0
-
-  for (var a in spritesheet[sprite].animations) {
-    this.animations[a] = []
-
-    for (var i in spritesheet[sprite].animations[a]) {
-      this.animations[a][i] = getTilePos(spritesheet[sprite].animations[a][i])
-    }
-  }
-}
-
-Sprite.prototype.update = function (dt) {
-  this.currentAnimationTile = (this.currentAnimationTile + this.animationSpeed * dt) % this.animations[this.currentAnimation].length
-
-  var ay = this.ay + (gravity * 100)
-
-  this.vx += this.ax * dt
-  this.vy += ay * dt
-
-  this.x += this.vx * dt
-  this.y += this.vy * dt
-
-  if (this.y + this.height > spriteGroundY) {
-    this.y = spriteGroundY - this.height
-  }
-
-  this.jumping = this.y + this.height < spriteGroundY
-
-  if (this.jumping) {
-    this.setCurrentAnimation('jump')
-  } else {
-    this.setCurrentAnimation('walk')
-  }
-}
-
-Sprite.prototype.setCurrentAnimation = function (animation) {
-  if (animation !== this.currentAnimation) {
-    this.currentAnimation = animation
-    this.currentAnimationTile = 0
-  }
-}
-
-Sprite.prototype.getCurrentTile = function () {
-  return this.animations[this.currentAnimation][Math.floor(this.currentAnimationTile)]
-}
+var points = 0
+var highScore = 0
 
 /**
  * PLAYER
  */
-var player = new Sprite('player')
+var player = new Player(spritesheet, getTilePos, gravity, spriteGroundY)
 
-function initPlayer () {
-  spriteGroundY = gamescreen.height - ground.height + 4
-  player.x = 16
-  player.y = spriteGroundY - player.height
-  player.currentAnimation = 'walk'
-}
-
-player.jump = function () {
-  this.vy = -300
-  sound.jump.play()
-}
-
-player.shoot = function () {
+function playerShoot () {
   if (bullets.length < 20) {
-    addBullet(this.x + 32, this.y + 18)
+    addBullet(player.x + 32, player.y + 18)
 
     sound.shoot.play()
+  }
+}
+
+function playerJump () {
+  if (player.jump()) {
+    sound.jump.play()
   }
 }
 
 /**
  * BULLETS
  */
-var bullets = []
-
-function Bullet (id, x, y) {
-  var tilePos = getTilePos(38)
-
-  this.id = id
-  this.x = x
-  this.y = y
-  this.sx = tilePos[0]
-  this.sy = tilePos[1]
-  this.width = 5
-  this.height = 5
-
-  this.vx = 250
-}
-
-Bullet.prototype.update = function (dt) {
-  this.x += this.vx * dt
-
-  if (this.x > gamescreen.width) {
-    removeBullet(this.id)
-  }
-}
+let bullets = []
 
 function addBullet (x, y) {
   var id = bullets.length
-  bullets[id] = new Bullet(id, x, y)
+  bullets[id] = new Bullet(id, x, y, getTilePos, gamescreen, removeBullet)
   bullets[id].vx += Math.floor(10 - Math.random() * 20)
 }
 
@@ -279,39 +91,13 @@ function removeBullet (id) {
 /**
  * OBSTACLES
  */
-var obstacleTiles = [34, 35, 36, 37, 40, 41, 42, 44, 45]
-var obstacles = []
-var obstacleTimer = 0
-var obstacleWait = 3
-
-function Obstacle (id, x, y) {
-  var tile = obstacleTiles[Math.floor(Math.random() * obstacleTiles.length)]
-
-  var tilePos = getTilePos(tile)
-
-  this.id = id
-  this.x = x
-  this.y = y - 14
-  this.sx = tilePos[0]
-  this.sy = tilePos[1]
-  this.width = 16
-  this.height = 16
-
-  this.vx = -groundSpeed
-}
-
-Obstacle.prototype.update = function (dt) {
-  // this.x -= this.vx * dt;
-  this.x += groundSpeed * dt
-
-  if (this.x < -this.width) {
-    removeObstacle(this.id)
-  }
-}
+let obstacles = []
+let obstacleTimer = 0
+let obstacleWait = 3
 
 function addObstacle (x, y) {
-  var id = obstacles.length
-  obstacles[id] = new Obstacle(id, x + Math.floor(Math.random() * 50), y)
+  let id = obstacles.length
+  obstacles[id] = new Obstacle(id, x + Math.floor(Math.random() * 50), y, groundSpeed, getTilePos, removeObstacle)
 }
 
 function removeObstacle (id) {
@@ -323,101 +109,24 @@ function removeObstacle (id) {
 }
 
 /**
- * CONTROLS
- */
-document.addEventListener('touchstart', function (event) {
-  if (!isDead) {
-    var touches = event.changedTouches
-
-    // left half of the window click
-    if (touches[0].pageX < window.innerWidth / 2 && !player.jumping) {
-      player.jump()
-    }
-    // right half of the window click
-    else if (touches[0].pageX > window.innerWidth / 2) {
-      player.shoot()
-    }
-  } else {
-    startGame()
-  }
-})
-
-document.addEventListener('click', function (event) {
-  if (!isDead) {
-    // left half of the window click
-    if (event.clientX < window.innerWidth / 2 && !player.jumping) {
-      player.jump()
-    }
-    // right half of the window click
-    else if (event.clientX > window.innerWidth / 2) {
-      player.shoot()
-    }
-  } else {
-    startGame()
-  }
-})
-
-document.addEventListener('keypress', function (event) {
-  if (!isDead) {
-    // Z - jump
-    if (event.key == 'z' && !player.jumping) {
-      player.jump()
-    }
-
-    // X - shoot
-    if (event.key == 'x') {
-      player.shoot()
-    }
-
-    // C - switch color
-    if (event.key == 'c' && currentColorScheme == 'standard') {
-      currentColorScheme = 'grayscale'
-      resetGameColors()
-    } else if (event.key == 'c' && currentColorScheme == 'grayscale') {
-      currentColorScheme = 'standard'
-      resetGameColors()
-    }
-  } else {
-    if (event.key == 'z' || event.key == 'x') {
-      startGame()
-    }
-  }
-})
-
-/**
  * GAME LOGIC
  */
-var gravity = 9.8
-var groundPos = 0
-var groundSpeed = -350
-var spriteGroundY
-
-var skyPos = 0
-var skySpeed = Math.floor(groundSpeed / 10)
-
-var isDead = false
-var speedTimer = 0
-var speedWait = 10
-
-var points = 0
-var highScore = 0
 
 const state = {}
 state.prepare = function () {} // NOOP
 state.update = update
 state.render = render
 
-const gameLoop = new Loop(state)
+const gameloop = new Mainloop(state)
 
 resetGameColors()
 resetGame()
-isDead = true
-gameLoop.start()
+gameloop.start()
 
 function resetGameColors () {
   colorizeTileset(tileset, colorScheme, currentColorScheme)
-  initGround()
-  initSky()
+  ground = getGround(gamescreen, tileset, colorScheme, currentColorScheme, getTilePos)
+  sky = getSky(gamescreen, tileset, colorScheme, currentColorScheme, getTilePos, ground)
 }
 
 function resetGame () {
@@ -426,8 +135,8 @@ function resetGame () {
   groundSpeed = -150
   skySpeed = -15
   points = 0
-  initPlayer()
-  isDead = false
+  player.reset()
+  started = false
 }
 
 function startGame () {
@@ -435,14 +144,49 @@ function startGame () {
   resetGameColors()
   resetGame()
   sound.powerup.play()
+  started = true
+}
+
+/**
+ * CONTROLS
+ */
+
+initControls()
+
+function checkControls () {
+  let buttonA = buttonState('A')
+  let buttonB = buttonState('B')
+  let buttonC = buttonState('C')
+
+  if (started) {
+    if (buttonA) {
+      playerJump()
+    } else if (buttonB) {
+      playerShoot()
+    } else if (buttonC) {
+      if (currentColorScheme === 'standard') {
+        currentColorScheme = 'grayscale'
+        resetGameColors()
+      } else if (currentColorScheme === 'grayscale') {
+        currentColorScheme = 'standard'
+        resetGameColors()
+      }
+    }
+  } else {
+    if (buttonA || buttonB) {
+      startGame()
+    }
+  }
 }
 
 function update (dt) {
+  checkControls()
+
   for (var i in bullets) {
     bullets[i].update(dt)
   }
 
-  if (isDead) {
+  if (!started) {
     return false
   }
 
@@ -494,7 +238,7 @@ function update (dt) {
 
       if (distance <= 16) {
         collision = true
-        isDead = true
+        started = false
 
         if (points > highScore) {
           highScore = points
@@ -507,36 +251,38 @@ function update (dt) {
 
     i++
   }
+
+  resetButtons()
 }
 
 function render () {
-  gamectx.clearRect(0, 0, gamescreen.width, gamescreen.height)
+  gamescreen.ctx.clearRect(0, 0, gamescreen.width, gamescreen.height)
 
   // Ground
-  gamectx.drawImage(ground, Math.floor(groundPos), gamescreen.height - ground.height)
-  gamectx.drawImage(ground, 0, 0, ground.width, ground.height, Math.floor(groundPos - ground.width), gamescreen.height - ground.height, ground.width, ground.height)
+  gamescreen.ctx.drawImage(ground, Math.floor(groundPos), gamescreen.height - ground.height)
+  gamescreen.ctx.drawImage(ground, 0, 0, ground.width, ground.height, Math.floor(groundPos - ground.width), gamescreen.height - ground.height, ground.width, ground.height)
 
   // Sky
-  gamectx.drawImage(sky, Math.floor(skyPos), 0)
-  gamectx.drawImage(sky, 0, 0, sky.width, sky.height, Math.floor(skyPos - sky.width), 0, sky.width, sky.height)
+  gamescreen.ctx.drawImage(sky, Math.floor(skyPos), 0)
+  gamescreen.ctx.drawImage(sky, 0, 0, sky.width, sky.height, Math.floor(skyPos - sky.width), 0, sky.width, sky.height)
 
   // Obstacles
   for (var i in obstacles) {
-    gamectx.drawImage(tileset, obstacles[i].sx, obstacles[i].sy, obstacles[i].width, obstacles[i].height, Math.floor(obstacles[i].x), Math.floor(obstacles[i].y), obstacles[i].width, obstacles[i].height)
+    gamescreen.ctx.drawImage(tileset, obstacles[i].sx, obstacles[i].sy, obstacles[i].width, obstacles[i].height, Math.floor(obstacles[i].x), Math.floor(obstacles[i].y), obstacles[i].width, obstacles[i].height)
   }
 
   // Player
   var tile = player.getCurrentTile()
-  gamectx.drawImage(tileset, tile[0], tile[1], player.width, player.height, Math.floor(player.x), Math.floor(player.y), player.width, player.height)
+  gamescreen.ctx.drawImage(tileset, tile[0], tile[1], player.width, player.height, Math.floor(player.x), Math.floor(player.y), player.width, player.height)
 
   // Bullets
   for (var i in bullets) {
-    gamectx.drawImage(tileset, bullets[i].sx, bullets[i].sy, bullets[i].width, bullets[i].height, Math.floor(bullets[i].x), Math.floor(bullets[i].y), bullets[i].width, bullets[i].height)
+    gamescreen.ctx.drawImage(tileset, bullets[i].sx, bullets[i].sy, bullets[i].width, bullets[i].height, Math.floor(bullets[i].x), Math.floor(bullets[i].y), bullets[i].width, bullets[i].height)
   }
 
-  renderHud(gamectx, gamescreen, tileset, points)
-  renderGameOver(gamectx, gamescreen, tileset, isDead, highScore)
+  renderHud(gamescreen.ctx, gamescreen, tileset, points)
+  renderGameOver(gamescreen.ctx, gamescreen, tileset, !started, highScore)
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-  ctx.drawImage(gamescreen, 0, 0, gamescreen.width, gamescreen.height, 0, 0, canvas.width, canvas.height)
+  canvas.ctx.clearRect(0, 0, canvas.width, canvas.height)
+  canvas.ctx.drawImage(gamescreen, 0, 0, gamescreen.width, gamescreen.height, 0, 0, canvas.width, canvas.height)
 }

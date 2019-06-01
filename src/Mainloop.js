@@ -5,7 +5,7 @@ const FPS = 60 // frames per second
 const DELTA = ONE_SECOND / FPS
 const STEP = 1 / FPS
 
-class Loop {
+class Mainloop {
   constructor (state) {
     this.raf = null
     this.setState(state)
@@ -53,4 +53,4 @@ class Loop {
   }
 }
 
-export default Loop
+export default Mainloop
