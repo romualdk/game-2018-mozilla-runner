@@ -7,7 +7,7 @@ import { getGround, getSky } from './src/layers.js'
 import Player from './src/Player.js'
 import Bullet from './src/Bullet.js'
 import Obstacle from './src/Obstacle.js'
-import { initControls, buttonState, resetButtons } from './src/controls.js'
+import Gamepad from './src/Gamepad.js'
 
 let currentColorScheme = 'grayscale'
 const tileset = getTilesetCanvas()
@@ -117,6 +117,7 @@ state.update = update
 state.render = render
 
 const gameloop = new Mainloop(state)
+const gamepad = new Gamepad()
 
 resetGameColors()
 resetGame()
@@ -146,23 +147,13 @@ function startGame () {
   started = true
 }
 
-/**
- * CONTROLS
- */
-
-initControls()
-
-function checkControls () {
-  let buttonA = buttonState('A')
-  let buttonB = buttonState('B')
-  let buttonC = buttonState('C')
-
+function handleControls () {
   if (started) {
-    if (buttonA) {
+    if (gamepad.button.A) {
       playerJump()
-    } else if (buttonB) {
+    } else if (gamepad.button.B) {
       playerShoot()
-    } else if (buttonC) {
+    } else if (gamepad.button.C) {
       if (currentColorScheme === 'standard') {
         currentColorScheme = 'grayscale'
         resetGameColors()
@@ -172,14 +163,19 @@ function checkControls () {
       }
     }
   } else {
-    if (buttonA || buttonB) {
+    if (gamepad.button.A || gamepad.button.B) {
       startGame()
     }
   }
 }
 
+function resetControls () {
+  gamepad.resetButtons()
+}
+
 function update (dt) {
-  checkControls()
+  handleControls()
+  resetControls()
 
   for (let i in bullets) {
     bullets[i].update(dt)
@@ -250,8 +246,6 @@ function update (dt) {
 
     i++
   }
-
-  resetButtons()
 }
 
 function render () {
@@ -279,8 +273,8 @@ function render () {
     gamescreen.ctx.drawImage(tileset, bullets[i].sx, bullets[i].sy, bullets[i].width, bullets[i].height, Math.floor(bullets[i].x), Math.floor(bullets[i].y), bullets[i].width, bullets[i].height)
   }
 
-  renderHud(gamescreen.ctx, gamescreen, tileset, points)
-  renderGameOver(gamescreen.ctx, gamescreen, tileset, !started, highScore)
+  renderHud(gamescreen, tileset, points)
+  renderGameOver(gamescreen, tileset, !started, highScore)
 
   canvas.ctx.clearRect(0, 0, canvas.width, canvas.height)
   canvas.ctx.drawImage(gamescreen, 0, 0, gamescreen.width, gamescreen.height, 0, 0, canvas.width, canvas.height)
