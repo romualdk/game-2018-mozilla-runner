@@ -1,14 +1,13 @@
 import Mainloop from './src/Mainloop.js'
-import { getGamescreen, getCanvas, resizeCanvas } from './src/screen.js'
-import { renderHud, renderGameOver } from './src/hud.js'
+import Gamepad from './src/Gamepad.js'
 import { sound } from './src/sound.js'
+import { getGamescreen, getCanvas, resizeCanvas } from './src/screen.js'
 import { myTileset, myColorSchemes, mySpritesheet } from './src/tilesetData.js'
 import Tileset from './src/Tileset.js'
-import { getGround, getSky } from './src/layers.js'
+import { getGround, getSky, renderGameOver, renderHud } from './src/layers.js'
 import Player from './src/Player.js'
 import Bullet from './src/Bullet.js'
 import Obstacle from './src/Obstacle.js'
-import Gamepad from './src/Gamepad.js'
 
 /**
  * SCREEN
