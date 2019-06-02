@@ -5,7 +5,7 @@ export function getGamescreen (width, height) {
   gamescreen.width = width
   getGamescreen.height = height
   gamescreen.ctx = gamescreen.getContext('2d')
-  
+
   return gamescreen
 }
 

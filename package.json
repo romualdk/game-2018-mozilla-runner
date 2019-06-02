@@ -4,7 +4,8 @@
   "description": "Mozilla like runner for js13k 2018.",
   "main": "game.js",
   "scripts": {
-    "test": "standard"
+    "test": "standard",
+    "start": "npx serve"
   },
   "repository": {
     "type": "git",
