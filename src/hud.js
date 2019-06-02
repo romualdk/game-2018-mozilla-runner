@@ -12,7 +12,7 @@ export function renderGameOver (gamescreen, tileset, isDead, highScore) {
       var sx = Math.floor((code - 65) % 16) * 8
       var sy = 168 + Math.floor((code - 65) / 16) * 8
 
-      gamescreen.ctx.drawImage(tileset, sx, sy, 8, 8, Math.floor(gamescreen.width / 2) - 36 + i * 8, 32, 8, 8)
+      gamescreen.ctx.drawImage(tileset.canvas, sx, sy, 8, 8, Math.floor(gamescreen.width / 2) - 36 + i * 8, 32, 8, 8)
     }
   }
 }
@@ -36,6 +36,6 @@ function renderPoints (tileset, points) {
   for (var i = 0; i < str.length; i++) {
     var code = str.charCodeAt(i)
 
-    pointsCtx.drawImage(tileset, (code - 48) * 8, 160, 8, 8, i * 8, 0, 8, 8)
+    pointsCtx.drawImage(tileset.canvas, (code - 48) * 8, 160, 8, 8, i * 8, 0, 8, 8)
   }
 }

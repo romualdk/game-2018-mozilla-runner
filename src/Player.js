@@ -1,5 +1,5 @@
 class Player {
-  constructor (spritesheet, getTilePos, gravity, spriteGroundY) {
+  constructor (tileset, gravity, spriteGroundY) {
     let sprite = 'player'
     this.x = 0
     this.y = 0
@@ -9,22 +9,22 @@ class Player {
     this.ay = 0
     this.jumps = 0
     this.jumping = false
-    this.width = spritesheet[sprite].width
-    this.height = spritesheet[sprite].height
+    this.width = tileset.spritesheet[sprite].width
+    this.height = tileset.spritesheet[sprite].height
     this.animations = {}
-    this.animationSpeed = spritesheet[sprite].animationSpeed
-    this.currentAnimation = spritesheet[sprite].currentAnimation
+    this.animationSpeed = tileset.spritesheet[sprite].animationSpeed
+    this.currentAnimation = tileset.spritesheet[sprite].currentAnimation
     this.currentAnimationTile = 0
     this.gravity = gravity
 
     this.spriteGroundY = spriteGroundY
     this.reset()
 
-    for (var a in spritesheet[sprite].animations) {
+    for (var a in tileset.spritesheet[sprite].animations) {
       this.animations[a] = []
 
-      for (var i in spritesheet[sprite].animations[a]) {
-        this.animations[a][i] = getTilePos(spritesheet[sprite].animations[a][i])
+      for (var i in tileset.spritesheet[sprite].animations[a]) {
+        this.animations[a][i] = tileset.tilePos(tileset.spritesheet[sprite].animations[a][i])
       }
     }
   }

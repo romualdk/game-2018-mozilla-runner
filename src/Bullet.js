@@ -1,6 +1,6 @@
 class Bullet {
-  constructor (id, x, y, getTilePos, gamescreen, removeBullet) {
-    var tilePos = getTilePos(38)
+  constructor (id, x, y, tileset, gamescreen, removeBullet) {
+    var tilePos = tileset.tilePos(38)
 
     this.id = id
     this.x = x

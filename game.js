@@ -2,15 +2,13 @@ import Mainloop from './src/Mainloop.js'
 import { getGamescreen, getCanvas, resizeCanvas } from './src/screen.js'
 import { renderHud, renderGameOver } from './src/hud.js'
 import { sound } from './src/sound.js'
-import { spritesheet, colorScheme, getTilesetCanvas, colorizeTileset, getTilePos } from './src/tileset.js'
+import { myTileset, myColorSchemes, mySpritesheet } from './src/tilesetData.js'
+import Tileset from './src/Tileset.js'
 import { getGround, getSky } from './src/layers.js'
 import Player from './src/Player.js'
 import Bullet from './src/Bullet.js'
 import Obstacle from './src/Obstacle.js'
 import Gamepad from './src/Gamepad.js'
-
-let currentColorScheme = 'grayscale'
-const tileset = getTilesetCanvas()
 
 /**
  * SCREEN
@@ -28,11 +26,9 @@ function onResize () {
 window.addEventListener('resize', onResize, false)
 onResize()
 
-/**
- * Layers
- */
-let ground = getGround(gamescreen, tileset, colorScheme, currentColorScheme, getTilePos)
-let sky = getSky(gamescreen, tileset, colorScheme, currentColorScheme, getTilePos, ground)
+let tileset = new Tileset(myTileset, myColorSchemes, mySpritesheet)
+let ground = getGround(gamescreen, tileset)
+let sky = getSky(gamescreen, tileset, ground)
 
 var gravity = 9.8
 var groundPos = 0
@@ -52,7 +48,7 @@ var highScore = 0
 /**
  * PLAYER
  */
-var player = new Player(spritesheet, getTilePos, gravity, spriteGroundY)
+var player = new Player(tileset, gravity, spriteGroundY)
 
 function playerShoot () {
   if (bullets.length < 20) {
@@ -75,7 +71,7 @@ let bullets = []
 
 function addBullet (x, y) {
   var id = bullets.length
-  bullets[id] = new Bullet(id, x, y, getTilePos, gamescreen, removeBullet)
+  bullets[id] = new Bullet(id, x, y, tileset, gamescreen, removeBullet)
   bullets[id].vx += Math.floor(10 - Math.random() * 20)
 }
 
@@ -96,7 +92,7 @@ let obstacleWait = 3
 
 function addObstacle (x, y) {
   let id = obstacles.length
-  obstacles[id] = new Obstacle(id, x + Math.floor(Math.random() * 50), y, groundSpeed, getTilePos, removeObstacle)
+  obstacles[id] = new Obstacle(id, x + Math.floor(Math.random() * 50), y, groundSpeed, tileset, removeObstacle)
 }
 
 function removeObstacle (id) {
@@ -124,9 +120,8 @@ resetGame()
 gameloop.start()
 
 function resetGameColors () {
-  colorizeTileset(tileset, colorScheme, currentColorScheme)
-  ground = getGround(gamescreen, tileset, colorScheme, currentColorScheme, getTilePos)
-  sky = getSky(gamescreen, tileset, colorScheme, currentColorScheme, getTilePos, ground)
+  ground = getGround(gamescreen, tileset)
+  sky = getSky(gamescreen, tileset, ground)
 }
 
 function resetGame () {
@@ -140,7 +135,7 @@ function resetGame () {
 }
 
 function startGame () {
-  currentColorScheme = 'standard'
+  tileset.colorize('standard')
   resetGameColors()
   resetGame()
   sound.powerup.play()
@@ -154,11 +149,11 @@ function handleControls () {
     } else if (gamepad.button.B) {
       playerShoot()
     } else if (gamepad.button.C) {
-      if (currentColorScheme === 'standard') {
-        currentColorScheme = 'grayscale'
+      if (tileset.currentColorScheme === 'standard') {
+        tileset.colorize('grayscale')
         resetGameColors()
-      } else if (currentColorScheme === 'grayscale') {
-        currentColorScheme = 'standard'
+      } else if (tileset.currentColorScheme === 'grayscale') {
+        tileset.colorize('standard')
         resetGameColors()
       }
     }
@@ -261,16 +256,16 @@ function render () {
 
   // Obstacles
   for (let i in obstacles) {
-    gamescreen.ctx.drawImage(tileset, obstacles[i].sx, obstacles[i].sy, obstacles[i].width, obstacles[i].height, Math.floor(obstacles[i].x), Math.floor(obstacles[i].y), obstacles[i].width, obstacles[i].height)
+    gamescreen.ctx.drawImage(tileset.canvas, obstacles[i].sx, obstacles[i].sy, obstacles[i].width, obstacles[i].height, Math.floor(obstacles[i].x), Math.floor(obstacles[i].y), obstacles[i].width, obstacles[i].height)
   }
 
   // Player
   var tile = player.getCurrentTile()
-  gamescreen.ctx.drawImage(tileset, tile[0], tile[1], player.width, player.height, Math.floor(player.x), Math.floor(player.y), player.width, player.height)
+  gamescreen.ctx.drawImage(tileset.canvas, tile[0], tile[1], player.width, player.height, Math.floor(player.x), Math.floor(player.y), player.width, player.height)
 
   // Bullets
   for (let i in bullets) {
-    gamescreen.ctx.drawImage(tileset, bullets[i].sx, bullets[i].sy, bullets[i].width, bullets[i].height, Math.floor(bullets[i].x), Math.floor(bullets[i].y), bullets[i].width, bullets[i].height)
+    gamescreen.ctx.drawImage(tileset.canvas, bullets[i].sx, bullets[i].sy, bullets[i].width, bullets[i].height, Math.floor(bullets[i].x), Math.floor(bullets[i].y), bullets[i].width, bullets[i].height)
   }
 
   renderHud(gamescreen, tileset, points)
