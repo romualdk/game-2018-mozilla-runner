@@ -1,7 +1,6 @@
-const obstacleTiles = [34, 35, 36, 37, 40, 41, 42, 44, 45]
-
 class Obstacle {
   constructor (id, x, y, groundSpeed, tileset, removeObstacle) {
+    let obstacleTiles = tileset.tileset.tiles.obstacles
     let tile = obstacleTiles[Math.floor(Math.random() * obstacleTiles.length)]
     let tilePos = tileset.tilePos(tile)
 

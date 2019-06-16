@@ -1,8 +1,10 @@
+/* global Image */
+
 import Mainloop from './src/Mainloop.js'
 import Gamepad from './src/Gamepad.js'
 import { sound } from './src/sound.js'
 import { getGamescreen, getCanvas, resizeCanvas } from './src/screen.js'
-import { myTileset, myColorSchemes, mySpritesheet } from './src/tilesetData.js'
+import { myTileset, mySpritesheet } from './src/tilesetData.js'
 import Tileset from './src/Tileset.js'
 import { getGround, getSky, renderGameOver, renderHud } from './src/layers.js'
 import Player from './src/Player.js'
@@ -12,8 +14,8 @@ import Obstacle from './src/Obstacle.js'
 /**
  * SCREEN
  */
-const SCREEN_WIDTH = 420
-const SCREEN_HEIGHT = 180
+const SCREEN_WIDTH = 256
+const SCREEN_HEIGHT = 144
 
 let gamescreen = getGamescreen(SCREEN_WIDTH, SCREEN_HEIGHT)
 let canvas = getCanvas('screen', gamescreen)
@@ -25,14 +27,29 @@ function onResize () {
 window.addEventListener('resize', onResize, false)
 onResize()
 
-let tileset = new Tileset(myTileset, myColorSchemes, mySpritesheet)
-let ground = getGround(gamescreen, tileset)
-let sky = getSky(gamescreen, tileset, ground)
+let tileset = null
+let ground = null
+let sky = null
+
+let img = new Image()
+img.src = myTileset.image
+img.onload = initTileset
+
+function initTileset () {
+  tileset = new Tileset(myTileset, mySpritesheet, img)
+  ground = getGround(gamescreen, tileset)
+  sky = getSky(gamescreen, tileset, ground)
+  spriteGroundY = gamescreen.height - ground.height + 4
+  player = new Player(tileset, gravity, spriteGroundY)
+
+  resetGame()
+  gameloop.start()
+}
 
 var gravity = 9.8
 var groundPos = 0
 var groundSpeed = -350
-let spriteGroundY = gamescreen.height - ground.height + 4
+let spriteGroundY = 0
 
 var skyPos = 0
 var skySpeed = Math.floor(groundSpeed / 10)
@@ -47,7 +64,7 @@ var highScore = 0
 /**
  * PLAYER
  */
-var player = new Player(tileset, gravity, spriteGroundY)
+var player = null
 
 function playerShoot () {
   if (bullets.length < 20) {
@@ -114,15 +131,6 @@ state.render = render
 const gameloop = new Mainloop(state)
 const gamepad = new Gamepad()
 
-resetGameColors()
-resetGame()
-gameloop.start()
-
-function resetGameColors () {
-  ground = getGround(gamescreen, tileset)
-  sky = getSky(gamescreen, tileset, ground)
-}
-
 function resetGame () {
   bullets = []
   obstacles = []
@@ -134,11 +142,14 @@ function resetGame () {
 }
 
 function startGame () {
-  tileset.colorize('standard')
-  resetGameColors()
   resetGame()
+  disableGrayscale()
   sound.powerup.play()
   started = true
+}
+
+function disableGrayscale () {
+  canvas.classList.remove('grayscale')
 }
 
 function handleControls () {
@@ -150,10 +161,8 @@ function handleControls () {
     } else if (gamepad.button.C) {
       if (tileset.currentColorScheme === 'standard') {
         tileset.colorize('grayscale')
-        resetGameColors()
       } else if (tileset.currentColorScheme === 'grayscale') {
         tileset.colorize('standard')
-        resetGameColors()
       }
     }
   } else {

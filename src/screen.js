@@ -3,7 +3,7 @@ let scale = 1
 export function getGamescreen (width, height) {
   let gamescreen = document.createElement('canvas')
   gamescreen.width = width
-  getGamescreen.height = height
+  gamescreen.height = height
   gamescreen.ctx = gamescreen.getContext('2d')
 
   return gamescreen

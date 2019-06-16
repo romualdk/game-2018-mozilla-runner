@@ -4,8 +4,8 @@ export function getGround (gamescreen, tileset) {
   ground.height = Math.floor(gamescreen.height / 4)
   ground.ctx = ground.getContext('2d')
 
-  let scheme = tileset.colorSchemes[tileset.currentColorScheme]
-  let color = scheme.colors[scheme.groundColor]
+  let tile = tileset.tilePosByName('ground')
+  let color = tileset.canvas.ctx.getImageData(tile[0], tile[1], 1, 1).data
 
   ground.ctx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')'
   ground.ctx.fillRect(0, 0, ground.width, ground.height)
@@ -34,13 +34,14 @@ export function getSky (gamescreen, tileset, ground) {
 
   let thirdHeight = Math.floor(sky.height / 3)
 
-  let scheme = tileset.colorSchemes[tileset.currentColorScheme]
-  let color = scheme.colors[scheme.skyColor]
+  let tile = tileset.tilePosByName('sky')
+  let color = tileset.canvas.ctx.getImageData(tile[0], tile[1], 1, 1).data
 
   sky.ctx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')'
   sky.ctx.fillRect(0, 0, sky.width, sky.height - thirdHeight)
 
-  color = scheme.colors[scheme.cloudColor]
+  tile = tileset.tilePosByName('cloud')
+  color = tileset.canvas.ctx.getImageData(tile[0], tile[1], 1, 1).data
 
   sky.ctx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')'
   sky.ctx.fillRect(0, sky.height - thirdHeight, sky.width, thirdHeight)

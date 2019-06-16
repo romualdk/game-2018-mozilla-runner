@@ -7,23 +7,12 @@ https://romualdk.github.io/games/2018/mozilla-runner/
 
 (press Z to jump, X to shoot)
 
-![preview](img/mozgame-prev.png)
+![preview](preview.png)
 
 UNFINISHED
 ----------
 
 It's more like mockup but I wish I could make it to the end ;-).
-
-INFO
-----
-
-Tileset and sound are base64 encoded and hard coded in "game.js".
-
-Tileset is grayscale and colored on demand.
-
-Different color palettes are assigned to sectors of tileset.
-
-![tileset](img/tileset.png)
 
 CREDITS
 -------

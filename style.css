@@ -8,22 +8,19 @@ html, body {
   display: block;  /* No floating content on sides */
 }
 
-canvas {
+#screen {
   display: block;
   margin: 32px auto;
-  border: 1px solid black;
+  width: 512px;
+  height: 288px;
 }
 
-#screen {
-  border: 0;
-}
-
-#tileset, #sky, #ground {
-  display: none;
+.grayscale {
+  filter: grayscale(100%);
 }
 
 #info {
-  width: 420px;
+  width: 512px;
   margin: 0 auto;
 }
 
