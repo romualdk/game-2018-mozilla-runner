@@ -8,9 +8,16 @@ class Sky {
   }
 
   reset () {
+    this.resetState()
+    this.resetImage()
+  }
+
+  resetState () {
     this.x = 0
     this.speed = 0
+  }
 
+  resetImage () {
     let screen = this.screen
     let tileset = this.tileset
     let sprite = tileset.spritesheet.cloud
