@@ -1,6 +1,6 @@
 export function getGround (gamescreen, tileset) {
   let ground = document.createElement('canvas')
-  ground.width = Math.ceil(gamescreen.width / 80) * 80
+  ground.width = Math.ceil(gamescreen.width)
   ground.height = Math.floor(gamescreen.height / 4)
   ground.ctx = ground.getContext('2d')
 
@@ -24,38 +24,6 @@ export function getGround (gamescreen, tileset) {
   }
 
   return ground
-}
-
-export function getSky (gamescreen, tileset, ground) {
-  let sky = document.createElement('canvas')
-  sky.width = ground.width
-  sky.height = gamescreen.height - ground.height
-  sky.ctx = sky.getContext('2d')
-
-  let thirdHeight = Math.floor(sky.height / 3)
-
-  let tile = tileset.tilePosByName('sky')
-  let color = tileset.canvas.ctx.getImageData(tile[0], tile[1], 1, 1).data
-
-  sky.ctx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')'
-  sky.ctx.fillRect(0, 0, sky.width, sky.height - thirdHeight)
-
-  tile = tileset.tilePosByName('cloud')
-  color = tileset.canvas.ctx.getImageData(tile[0], tile[1], 1, 1).data
-
-  sky.ctx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')'
-  sky.ctx.fillRect(0, sky.height - thirdHeight, sky.width, thirdHeight)
-
-  let pos = tileset.tilePos(64)
-
-  for (var i = 0; i < sky.width / 80; i++) {
-    var dx = i * 80
-    var dy = sky.height - thirdHeight - 32
-
-    sky.ctx.drawImage(tileset.canvas, pos[0], pos[1], 80, 32, dx, dy, 80, 32)
-  }
-
-  return sky
 }
 
 const T_GAME_OVER = 'GAME OVER'

@@ -30,5 +30,11 @@ export const mySpritesheet = {
     },
     animationSpeed: 8,
     currentAnimation: 'stand'
+  },
+  cloud: {
+    x: 0,
+    y: 128,
+    width: 80,
+    height: 32
   }
 }

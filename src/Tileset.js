@@ -25,6 +25,19 @@ class Tileset {
     let tile = this.tileset.tiles[tileName] || 0
     return this.tilePos(tile)
   }
+
+  colorByTileName (tileName) {
+    let tile = this.tilePosByName(tileName)
+    return this.tileColor(tile)
+  }
+
+  tileColor (tile) {
+    return this.onePixelData(tile[0], tile[1])
+  }
+
+  onePixelData (x, y) {
+    return this.canvas.ctx.getImageData(x, y, 1, 1).data
+  }
 }
 
 export default Tileset

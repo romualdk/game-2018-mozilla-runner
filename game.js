@@ -6,7 +6,8 @@ import { sound } from './src/sound.js'
 import { getGamescreen, getCanvas, resizeCanvas } from './src/screen.js'
 import { myTileset, mySpritesheet } from './src/tilesetData.js'
 import Tileset from './src/Tileset.js'
-import { getGround, getSky, renderGameOver, renderHud } from './src/layers.js'
+import { getGround, renderGameOver, renderHud } from './src/layers.js'
+import Sky from './src/Sky.js'
 import Player from './src/Player.js'
 import Bullet from './src/Bullet.js'
 import Obstacle from './src/Obstacle.js'
@@ -38,7 +39,9 @@ img.onload = initTileset
 function initTileset () {
   tileset = new Tileset(myTileset, mySpritesheet, img)
   ground = getGround(gamescreen, tileset)
-  sky = getSky(gamescreen, tileset, ground)
+
+  sky = new Sky(gamescreen, tileset)
+
   spriteGroundY = gamescreen.height - ground.height + 4
   player = new Player(tileset, gravity, spriteGroundY)
 
@@ -50,9 +53,6 @@ var gravity = 9.8
 var groundPos = 0
 var groundSpeed = -350
 let spriteGroundY = 0
-
-var skyPos = 0
-var skySpeed = Math.floor(groundSpeed / 10)
 
 var started = false
 var speedTimer = 0
@@ -134,8 +134,9 @@ const gamepad = new Gamepad()
 function resetGame () {
   bullets = []
   obstacles = []
+  sky.reset()
   groundSpeed = -150
-  skySpeed = -15
+  sky.speed = -15
   points = 0
   player.reset()
   started = false
@@ -195,7 +196,7 @@ function update (dt) {
 
   if (speedTimer >= speedWait) {
     groundSpeed -= 50
-    skySpeed = Math.floor(groundSpeed / 10)
+    sky.speed = groundSpeed / 10
 
     sound.powerup.play()
 
@@ -216,11 +217,7 @@ function update (dt) {
     groundPos += ground.width
   }
 
-  skyPos += skySpeed * dt
-  if (skyPos < 0) {
-    skyPos += sky.width
-  }
-
+  sky.update(dt)
   player.update(dt)
 
   // Collision detection
@@ -254,13 +251,11 @@ function update (dt) {
 function render () {
   gamescreen.ctx.clearRect(0, 0, gamescreen.width, gamescreen.height)
 
+  sky.render()
+
   // Ground
   gamescreen.ctx.drawImage(ground, Math.floor(groundPos), gamescreen.height - ground.height)
   gamescreen.ctx.drawImage(ground, 0, 0, ground.width, ground.height, Math.floor(groundPos - ground.width), gamescreen.height - ground.height, ground.width, ground.height)
-
-  // Sky
-  gamescreen.ctx.drawImage(sky, Math.floor(skyPos), 0)
-  gamescreen.ctx.drawImage(sky, 0, 0, sky.width, sky.height, Math.floor(skyPos - sky.width), 0, sky.width, sky.height)
 
   // Obstacles
   for (let i in obstacles) {
