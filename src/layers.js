@@ -1,31 +1,3 @@
-export function getGround (gamescreen, tileset) {
-  let ground = document.createElement('canvas')
-  ground.width = Math.ceil(gamescreen.width)
-  ground.height = Math.floor(gamescreen.height / 4)
-  ground.ctx = ground.getContext('2d')
-
-  let tile = tileset.tilePosByName('ground')
-  let color = tileset.canvas.ctx.getImageData(tile[0], tile[1], 1, 1).data
-
-  ground.ctx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')'
-  ground.ctx.fillRect(0, 0, ground.width, ground.height)
-
-  let stamps = Math.floor(5 + Math.random() * 3)
-  let pos = tileset.tilePos(70)
-
-  let step = Math.floor(ground.width / stamps)
-  let devStep = Math.floor(step / 3)
-  let devVert = Math.floor(ground.height / 8)
-
-  for (let i = 0; i < stamps; i++) {
-    let dx = 16 + i * step + devStep - Math.floor(Math.random() * devStep * 2)
-    let dy = Math.floor(ground.height / 3) + devVert - Math.floor(Math.random() * devVert * 2)
-    ground.ctx.drawImage(tileset.canvas, pos[0], pos[1], 32, 32, dx, dy, 32, 32)
-  }
-
-  return ground
-}
-
 const T_GAME_OVER = 'GAME OVER'
 
 export function renderGameOver (gamescreen, tileset, isDead, highScore) {

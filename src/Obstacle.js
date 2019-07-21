@@ -1,5 +1,5 @@
 class Obstacle {
-  constructor (id, x, y, groundSpeed, tileset, removeObstacle) {
+  constructor (id, x, y, ground, tileset, removeObstacle) {
     let obstacleTiles = tileset.tileset.tiles.obstacles
     let tile = obstacleTiles[Math.floor(Math.random() * obstacleTiles.length)]
     let tilePos = tileset.tilePos(tile)
@@ -12,7 +12,7 @@ class Obstacle {
     this.width = 16
     this.height = 16
 
-    this.vx = groundSpeed
+    this.vx = ground.speed
 
     this.removeObstacle = removeObstacle
   }

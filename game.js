@@ -6,8 +6,9 @@ import { sound } from './src/sound.js'
 import { getGamescreen, getCanvas, resizeCanvas } from './src/screen.js'
 import { myTileset, mySpritesheet } from './src/tilesetData.js'
 import Tileset from './src/Tileset.js'
-import { getGround, renderGameOver, renderHud } from './src/layers.js'
+import { renderGameOver, renderHud } from './src/layers.js'
 import Sky from './src/Sky.js'
+import Ground from './src/Ground.js'
 import Player from './src/Player.js'
 import Bullet from './src/Bullet.js'
 import Obstacle from './src/Obstacle.js'
@@ -38,11 +39,11 @@ img.onload = initTileset
 
 function initTileset () {
   tileset = new Tileset(myTileset, mySpritesheet, img)
-  ground = getGround(gamescreen, tileset)
 
   sky = new Sky(gamescreen, tileset)
+  ground = new Ground(gamescreen, tileset)
 
-  spriteGroundY = gamescreen.height - ground.height + 4
+  spriteGroundY = gamescreen.height - ground.image.height + 4
   player = new Player(tileset, gravity, spriteGroundY)
 
   resetGame()
@@ -50,8 +51,6 @@ function initTileset () {
 }
 
 var gravity = 9.8
-var groundPos = 0
-var groundSpeed = -350
 let spriteGroundY = 0
 
 var started = false
@@ -108,7 +107,7 @@ let obstacleWait = 3
 
 function addObstacle (x, y) {
   let id = obstacles.length
-  obstacles[id] = new Obstacle(id, x + Math.floor(Math.random() * 50), y, groundSpeed, tileset, removeObstacle)
+  obstacles[id] = new Obstacle(id, x + Math.floor(Math.random() * 50), y, ground, tileset, removeObstacle)
 }
 
 function removeObstacle (id) {
@@ -135,7 +134,8 @@ function resetGame () {
   bullets = []
   obstacles = []
   sky.reset()
-  groundSpeed = -150
+  ground.reset()
+  ground.speed = -150
   sky.speed = -15
   points = 0
   player.reset()
@@ -195,8 +195,8 @@ function update (dt) {
   obstacleTimer += dt
 
   if (speedTimer >= speedWait) {
-    groundSpeed -= 50
-    sky.speed = groundSpeed / 10
+    ground.speed -= 50
+    sky.speed = ground.speed / 10
 
     sound.powerup.play()
 
@@ -212,12 +212,8 @@ function update (dt) {
     obstacles[i].update(dt)
   }
 
-  groundPos += groundSpeed * dt
-  if (groundPos < 0) {
-    groundPos += ground.width
-  }
-
   sky.update(dt)
+  ground.update(dt)
   player.update(dt)
 
   // Collision detection
@@ -252,10 +248,7 @@ function render () {
   gamescreen.ctx.clearRect(0, 0, gamescreen.width, gamescreen.height)
 
   sky.render()
-
-  // Ground
-  gamescreen.ctx.drawImage(ground, Math.floor(groundPos), gamescreen.height - ground.height)
-  gamescreen.ctx.drawImage(ground, 0, 0, ground.width, ground.height, Math.floor(groundPos - ground.width), gamescreen.height - ground.height, ground.width, ground.height)
+  ground.render()
 
   // Obstacles
   for (let i in obstacles) {

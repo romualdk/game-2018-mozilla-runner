@@ -36,5 +36,11 @@ export const mySpritesheet = {
     y: 128,
     width: 80,
     height: 32
+  },
+  sand: {
+    x: 96,
+    y: 128,
+    width: 16,
+    height: 16
   }
 }

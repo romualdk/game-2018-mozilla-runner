@@ -1,4 +1,4 @@
-import { createCanvas2d, fillWithColor, repeatSpriteHorizontaly } from './Canvas.js'
+import { createCanvas2d, fillWithColor, stampSprite } from './Canvas.js'
 
 class Sky {
   constructor (screen, tileset) {
@@ -53,6 +53,16 @@ class Sky {
 
     this.screen.ctx.drawImage(this.image, x, 0)
     this.screen.ctx.drawImage(this.image, 0, 0, width, height, Math.floor(x - width), 0, width, height)
+  }
+}
+
+function repeatSpriteHorizontaly (canvas, tileset, sprite, y) {
+  let stamps = Math.ceil(canvas.width / sprite.width)
+
+  for (let i = 0; i < stamps; i++) {
+    let x = i * sprite.width
+
+    stampSprite(canvas, x, y, tileset, sprite)
   }
 }
 

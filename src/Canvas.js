@@ -15,13 +15,3 @@ export function fillWithColor (canvas, x, y, width, height, color) {
 export function stampSprite (canvas, x, y, tileset, sprite) {
   canvas.ctx.drawImage(tileset.canvas, sprite.x, sprite.y, sprite.width, sprite.height, x, y, sprite.width, sprite.height)
 }
-
-export function repeatSpriteHorizontaly (canvas, tileset, sprite, y) {
-  let stamps = Math.ceil(canvas.width / sprite.width)
-
-  for (let i = 0; i < stamps; i++) {
-    let x = i * sprite.width
-
-    stampSprite(canvas, x, y, tileset, sprite)
-  }
-}
